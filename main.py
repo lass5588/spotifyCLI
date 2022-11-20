@@ -26,6 +26,8 @@ def parser():
             start_playback()
         case "current" | "Current" | "CURRENT":
             get_current_track()
+        case "skip" | "Skip" | "SKIP" | "next" | "Next" | "NEXT":
+            skip_track() 
         case _:
             print(f"Command not exepted: {raw_input}")
 
@@ -40,6 +42,12 @@ def stop_playback():
         spotify.pause_playback()
     except:
         print("Illegal command, already paused, else check connection ")
+
+def skip_track():
+    try:
+        spotify.next_track()
+    except:
+        print("", end="")
 
 def get_current_track():
     try:
