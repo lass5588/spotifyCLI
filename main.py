@@ -4,6 +4,7 @@ import json
 import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -25,14 +26,16 @@ def parser():
             stop_playback()
         case "play" | "Play" | "PLAY" | "stop" | "Stop" | "STOP":
             start_playback()
-        case "current" | "Current" | "CURRENT":
+        case "current" | "Current" | "CURRENT" | "c" | "C":
             get_current_track_info()
-        case "skip" | "Skip" | "SKIP" | "next" | "Next" | "NEXT":
+        case "skip" | "Skip" | "SKIP" | "next" | "Next" | "NEXT" | "n" | "N":
             skip_track()
         case "back" | "Back" | "BACK" | "previous" | "Previous" | "PREVIOUS":
             previous_track()
         case "quit" | "Quit" | "QUIT" | "Q" | "q" | "terminate":
             sys.exit()
+        case "t":
+            print("Test case.")
         case _:
             print(f"Command not exepted: {raw_input}")
 
@@ -63,14 +66,28 @@ def previous_track():
 def get_current_track_info():
     try:
         result = spotify.current_playback()
-        print(f"Track: {result['item']['name']}")
-        print(f"Album: {result['item']['album']['name']}")
-        print(f"Artist: {result['item']['artists'][0]['name']}") # prints only the first currently [0], will fail if more is selected without having one.
+        print("\nTrack Info: \n")
+        print(f"{result['item']['name']}")
+        print(f"{result['item']['album']['name']}")
+        print(f"{result['item']['artists'][0]['name']}") # prints only the first currently [0], will fail if more is selected without having one.
+        print(f"{convert_ms_to_time(result['progress_ms'])} - {convert_ms_to_time(result['item']['duration_ms'])}")
         print(f"Playing: {result['is_playing']}")
-        print(result['device']['is_active'], " – ", result['progress_ms']/1000,)
-        # Present time => 2:35 of 3:45
+        print(f"Shuffle: {result['shuffle_state']}")
+        print("\n")
     except:
         print("", end="")
+
+def convert_ms_to_time(current_time_ms):
+    time = timedelta(milliseconds = current_time_ms)
+
+    if(time.seconds >= 60 * 60): # Minutes and seconds.
+        hours = int(time.seconds / 60 / 60)
+        minutes = (time.seconds - hours * 60 * 60) / 60
+        return f"{hours} : {minutes} : {seconds}"
+
+    minutes = int(time.seconds / 60)
+    seconds = time.seconds - minutes * 60
+    return f"{minutes}:{seconds}"
 
 while(True):
     parser()
