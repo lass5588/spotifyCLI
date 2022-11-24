@@ -8,18 +8,22 @@ from datetime import timedelta
 
 load_dotenv()
 
+USERNAME = os.getenv('USERNAME')
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
 
-scope = "user-modify-playback-state, user-library-read, user-read-playback-state"
+scope = """ user-modify-playback-state, 
+            user-library-read, 
+            user-read-playback-state, 
+            playlist-modify-public, 
+            playlist-modify-private """
 
 token = SpotifyOAuth(scope = scope, client_id = SPOTIPY_CLIENT_ID, client_secret = SPOTIPY_CLIENT_SECRET, redirect_uri = SPOTIPY_REDIRECT_URI)
 spotify = spotipy.Spotify(auth_manager = token)
 
 def parser():
-    print("enter command: ", end="")
-    raw_input = input()
+    raw_input = input("Enter command: ")
 
     match raw_input:
         case "pause" | "Pause" | "PAUSE" | "start" | "Start" | "START":
@@ -34,6 +38,8 @@ def parser():
             previous_track()
         case "quit" | "Quit" | "QUIT" | "Q" | "q" | "terminate":
             sys.exit()
+        case "new_playlist" | "create_playlist" | "New_playlist" | "Create_playlist":
+            create_new_playlist()
         case "t":
             print("Test case.")
             test()
@@ -108,7 +114,30 @@ def string_with_more_than_one_artist(track):
 
 def get_track_with_spotify_id(spotify_id):
     return spotify.track(spotify_id)
-    
+
+# TODO: check if the playlist name is taken in the users saved playlists.
+def create_new_playlist():
+    try:
+        playlist_name = input("Playlist name: ")
+        playlist_name.strip()
+        public = yes_or_no_input_to_bool() # Apparently my loocal Spotify states that it is public no matter the input...
+        description = input("description: ")
+        spotify.user_playlist_create(user = USERNAME, name = playlist_name, public = public, description = description)
+    except:
+        print("Illegal arguments.")
+
+def yes_or_no_input_to_bool():
+    public = ''
+    while len(public) != 1:
+        public = input("Publiv y/n: ")
+        public = public.lower()
+        if public != 'y' and public != 'n':
+            public = ""
+            print("Illegal argument, needs to be y or n.")
+
+    return True if public == 'y' else False
+
+
 def test():
     return ""
 
