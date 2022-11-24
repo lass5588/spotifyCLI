@@ -36,6 +36,10 @@ def parser():
             sys.exit()
         case "t":
             print("Test case.")
+            test()
+        case "Connect":
+            # Is it possible to make a connection? every the device goes to sleep it can not connect.
+            return ""
         case _:
             print(f"Command not exepted: {raw_input}")
 
@@ -65,29 +69,48 @@ def previous_track():
 
 def get_current_track_info():
     try:
-        result = spotify.current_playback()
-        print("\nTrack Info: \n")
-        print(f"{result['item']['name']}")
-        print(f"{result['item']['album']['name']}")
-        print(f"{result['item']['artists'][0]['name']}") # prints only the first currently [0], will fail if more is selected without having one.
+        result = spotify.current_playback() # Needed to keep for progress.
         print(f"{convert_ms_to_time(result['progress_ms'])} - {convert_ms_to_time(result['item']['duration_ms'])}")
+        track = spotify.track(result['item']['id'])
+        print("\nTrack Information: \n")
+        print(track['name'])
+        print(track['album']['name'])
+        print(string_with_more_than_one_artist(track))
+        print(f"{convert_ms_to_time(result['progress_ms'])} - {convert_ms_to_time(track['duration_ms'])}")
         print(f"Playing: {result['is_playing']}")
         print(f"Shuffle: {result['shuffle_state']}")
+        #print(f"playlist: {result['context']}") # Contains information about playlist URi, URL..
         print("\n")
     except:
         print("", end="")
 
 def convert_ms_to_time(current_time_ms):
-    time = timedelta(milliseconds = current_time_ms)
+    time = timedelta(milliseconds = current_time_ms) # Contains seconds, hours and days.
 
     if(time.seconds >= 60 * 60): # Minutes and seconds.
         hours = int(time.seconds / 60 / 60)
         minutes = (time.seconds - hours * 60 * 60) / 60
-        return f"{hours} : {minutes} : {seconds}"
+        return f"{hours}:{minutes}:{seconds}" # No 0 formatting for time with hours.
 
     minutes = int(time.seconds / 60)
     seconds = time.seconds - minutes * 60
-    return f"{minutes}:{seconds}"
+    return f"{minutes}:{seconds}" if seconds > 10 else f"{minutes}:0{seconds}"
+
+def string_with_more_than_one_artist(track):
+    artists = track['artists']
+    artists_string = ""
+    for artist in artists:
+        if artists_string != "":
+            artists_string += ", "
+        artists_string += artist['name']
+
+    return artists_string
+
+def get_track_with_spotify_id(spotify_id):
+    return spotify.track(spotify_id)
+    
+def test():
+    return ""
 
 while(True):
     parser()
