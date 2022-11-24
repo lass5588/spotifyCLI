@@ -24,26 +24,27 @@ spotify = spotipy.Spotify(auth_manager = token)
 
 def parser():
     raw_input = input("Enter command: ")
+    raw_input = raw_input.lower()
 
     match raw_input:
-        case "pause" | "Pause" | "PAUSE" | "start" | "Start" | "START":
+        case "pause" | "stop":
             stop_playback()
-        case "play" | "Play" | "PLAY" | "stop" | "Stop" | "STOP":
+        case "play" | "start":
             start_playback()
-        case "current" | "Current" | "CURRENT" | "c" | "C":
+        case "current" | "c":
             get_current_track_info()
-        case "skip" | "Skip" | "SKIP" | "next" | "Next" | "NEXT" | "n" | "N":
+        case "skip" | "next" | "n":
             skip_track()
-        case "back" | "Back" | "BACK" | "previous" | "Previous" | "PREVIOUS":
+        case "back" | "previous":
             previous_track()
-        case "quit" | "Quit" | "QUIT" | "Q" | "q" | "terminate":
+        case "quit" | "q" | "terminate":
             sys.exit()
-        case "new_playlist" | "create_playlist" | "New_playlist" | "Create_playlist":
+        case "new_playlist" | "create_playlist":
             create_new_playlist()
-        case "t":
+        case "t" | "Test":
             print("Test case.")
             test()
-        case "Connect":
+        case "connect":
             # Is it possible to make a connection? every the device goes to sleep it can not connect.
             return ""
         case _:
@@ -136,7 +137,6 @@ def yes_or_no_input_to_bool():
             print("Illegal argument, needs to be y or n.")
 
     return True if public == 'y' else False
-
 
 def test():
     return ""
