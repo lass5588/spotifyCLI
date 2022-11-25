@@ -15,7 +15,8 @@ SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
 
 scope = """ user-modify-playback-state, 
             user-library-read, 
-            user-read-playback-state, 
+            user-read-playback-state,
+            playlist-read-private, 
             playlist-modify-public, 
             playlist-modify-private """
 
@@ -41,6 +42,10 @@ def parser():
             sys.exit()
         case "new_playlist" | "create_playlist":
             create_new_playlist()
+        case "delete_playlist" | "remove_playlist":
+            delete_playlist()
+        case "playlists":
+            show_playlists()
         case "t" | "Test":
             print("Test case.")
             test()
@@ -116,6 +121,14 @@ def string_with_more_than_one_artist(track):
 def get_track_with_spotify_id(spotify_id):
     return spotify.track(spotify_id)
 
+def show_playlists():
+    try:
+        playlists = spotify.current_user_playlists()
+        for playlist in playlists['items']:
+            print(f"{playlist['name']} - Spotify id: {playlist['id']}")
+    except:
+        print("", end="")
+
 # TODO: check if the playlist name is taken in the users saved playlists.
 def create_new_playlist():
     try:
@@ -126,6 +139,9 @@ def create_new_playlist():
         spotify.user_playlist_create(user = USERNAME, name = playlist_name, public = public, description = description)
     except:
         print("Illegal arguments.")
+
+def delete_playlist():
+    spotify.current_user_unfollow_playlist("7oUtJpCMDIi7fJ2iOjdfOy")
 
 def yes_or_no_input_to_bool():
     public = ''
