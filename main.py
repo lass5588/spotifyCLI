@@ -32,6 +32,8 @@ def parser():
             stop_playback()
         case "play" | "start":
             start_playback()
+        case "p":
+            play_or_pause()
         case "current" | "c":
             get_current_track_info()
         case "skip" | "next" | "n":
@@ -69,6 +71,13 @@ def stop_playback():
     except:
         print("Illegal command, already paused, else check connection ")
 
+def play_or_pause():
+    try:
+        playback_state = get_current_playback()
+        stop_playback() if playback_state["is_playing"] else start_playback()
+    except:
+       print("Current playback can not be accessed, check connection. ", end="")
+
 def skip_track():
     try:
         spotify.next_track()
@@ -83,20 +92,20 @@ def previous_track():
 
 def get_current_track_info():
     try:
-        result = spotify.current_playback() # Needed to keep for progress.
-        print(f"{convert_ms_to_time(result['progress_ms'])} - {convert_ms_to_time(result['item']['duration_ms'])}")
-        track = spotify.track(result['item']['id'])
-        print("\nTrack Information: \n")
-        print(track['name'])
-        print(track['album']['name'])
-        print(string_with_more_than_one_artist(track))
-        print(f"{convert_ms_to_time(result['progress_ms'])} - {convert_ms_to_time(track['duration_ms'])}")
-        print(f"Playing: {result['is_playing']}")
-        print(f"Shuffle: {result['shuffle_state']}")
-        #print(f"playlist: {result['context']}") # Contains information about playlist URi, URL..
-        print("\n")
+        current_playback = get_current_playback() # Needed to keep for progress.
+        track = get_track_with_spotify_id(current_playback['item']['id'])
     except:
-        print("", end="")
+        print("Current playback can not be accessed, check connection. ", end="")
+    
+    print("\nTrack Information: \n")
+    print(track['name'])
+    print(track['album']['name'])
+    print(string_with_more_than_one_artist(track))
+    print(f"{convert_ms_to_time(current_playback['progress_ms'])} - {convert_ms_to_time(track['duration_ms'])}")
+    print(f"Playing: {current_playback['is_playing']}")
+    print(f"Shuffle: {current_playback['shuffle_state']}")
+    #print(f"playlist: {current_playback['context']}") # Contains information about playlist URi, URL..
+    print("\n")
 
 def convert_ms_to_time(current_time_ms):
     time = timedelta(milliseconds = current_time_ms) # Contains seconds, hours and days.
@@ -119,6 +128,12 @@ def string_with_more_than_one_artist(track):
         artists_string += artist['name']
 
     return artists_string
+
+def get_current_playback():
+    try:
+        return spotify.current_playback()
+    except:
+        print("Current playback can not be accessed, check connection. ", end="")
 
 def get_track_with_spotify_id(spotify_id):
     try:
