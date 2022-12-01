@@ -46,6 +46,8 @@ def parser():
             delete_playlist()
         case "playlists":
             show_playlists()
+        case "tracks":
+            show_tracks_in_playlist("564dMLmDhjO0jssao6w9mK")
         case "t" | "Test":
             print("Test case.")
             test()
@@ -119,7 +121,16 @@ def string_with_more_than_one_artist(track):
     return artists_string
 
 def get_track_with_spotify_id(spotify_id):
-    return spotify.track(spotify_id)
+    try:
+        return spotify.track(spotify_id)
+    except:
+        print("Track id can not be found. ", end="")
+
+def get_playlist_with_spotify_id(spotify_id):
+    try:
+        return spotify.playlist(spotify_id)
+    except:
+        print("Playlist id can not be found. ", end="")
 
 def show_playlists():
     try:
@@ -129,7 +140,23 @@ def show_playlists():
     except:
         print("", end="")
 
-# TODO: check if the playlist name is taken in the users saved playlists.
+def show_tracks_in_playlist(playlist_id):
+    playlist = get_playlist_with_spotify_id(playlist_id) # print(playlist['tracks']['items'][0]['track']['name']) The complete path.
+    tracksObject = playlist['tracks']
+    tracks = tracksObject['items']
+
+    try:
+        while tracksObject['next']:
+            tracksObject = spotify.next(tracksObject)
+            tracks.extend(tracksObject['items'])
+    except:
+        print("illegal next id. ", end="")
+
+    for i, item in enumerate(tracks):
+        track = item['track'] # can not be specied in the enumerate
+        print(f"{i}: {track['name']}")
+
+# TODO check if the playlist name is taken in the users saved playlists.
 def create_new_playlist():
     try:
         playlist_name = input("Playlist name: ")
@@ -146,7 +173,7 @@ def delete_playlist():
 def yes_or_no_input_to_bool():
     public = ''
     while len(public) != 1:
-        public = input("Publiv y/n: ")
+        public = input("Public y/n: ")
         public = public.lower()
         if public != 'y' and public != 'n':
             public = ""
