@@ -34,6 +34,12 @@ def parser():
             start_playback()
         case "p":
             play_or_pause()
+        case "repeat":
+            toggle_repeat_mode()
+        case "repeat track":
+            toggle_repeat_single_track()
+        case "shuffle":
+            toggle_shuffle_mode()
         case "current" | "c":
             get_current_track_info()
         case "skip" | "next" | "n":
@@ -89,6 +95,32 @@ def previous_track():
         spotify.previous_track()
     except:
         print("", end="")
+
+# The third option "track" (repeating same track) can not be set, but if it is set it will be toggled off.
+def toggle_repeat_single_track():
+    try:
+        playback = get_current_playback()
+        spotify.repeat("track") if playback["repeat_state"] != "track" else spotify.repeat("off")
+    except:
+        print("Repeat mode can not be toggled, check connection. ")
+
+def toggle_repeat_mode():
+    try:
+        playback = get_current_playback()
+        
+        if playback["repeat_state"] == "off" or playback["repeat_state"] == "track":
+            spotify.repeat("context")
+        if playback["repeat_state"] == "context":
+            spotify.repeat("off")
+    except:
+        print("Repeat mode can not be toggled, check connection. ")
+
+def toggle_shuffle_mode():
+    try:
+        playback = get_current_playback()
+        spotify.shuffle(False) if playback["shuffle_state"] == True else spotify.shuffle(True)
+    except:
+        print("Shuffle mode can not be toggled, check connection. ")
 
 def get_current_track_info():
     try:
